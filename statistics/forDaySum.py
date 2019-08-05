@@ -3,7 +3,7 @@ from openpyxl import Workbook
 
 wb = Workbook()
 
-ws = wb.create_sheet()
+ws = wb.active()
 
 db = pymysql.connect(host='localhost', user='root', password='ashy1256', db='bflow_data', charset='utf8')
 cursor = db.cursor()

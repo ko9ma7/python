@@ -24,13 +24,17 @@ for name in channel_name:
     insertSql = f'''insert into `bflow_data`.`sellstatistics` 
     (
     date,
+    week,
+    month,
     {name}_total_amount,
     {name}_qty,
     {name}_ct,
     {name}_margin,
     {name}_profit
     )
-    values (%s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE
+    values (%s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE
+    week = %s,
+    month = %s,
     {name}_total_amount = %s,
     {name}_qty = %s,
     {name}_ct = %s,
@@ -38,7 +42,9 @@ for name in channel_name:
     {name}_profit = %s '''
 
     for row in rows:
-        date = row[0]    
+        date = row[0]
+        week = date.isocalendar()[1]
+        month = date.month
         total_amount = row[2]
         qty = row[3]
         ct = round(total_amount/qty, 0)
@@ -49,11 +55,15 @@ for name in channel_name:
 
         values = (
             date,
+            week,
+            month,
             total_amount,
             qty,
             ct,
             margin,
             profit,
+            week,
+            month,
             total_amount,
             qty,
             ct,
