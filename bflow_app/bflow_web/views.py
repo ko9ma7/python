@@ -1,5 +1,7 @@
-from django.shortcuts import render
-from .models import Sell
+from django.shortcuts import render, redirect
+from django.core.paginator import Paginator
+from django.db.models import Sum, F, Case, When, Q
+from .models import Sell, Calculate
 import openpyxl
 import datetime
 
@@ -26,10 +28,42 @@ def replaceint(text):
         text = int(text)
         return text
 
-def sell_list(request):
-    if "GET" == request.method:
-        return render(request, 'bflow_web/sell_list.html', {})
+def replaceMustint(text):
+    if text is None:
+        return 0
     else:
+        text = int(text)
+        return text
+
+def sell_list(request):
+    if request.method == "GET":
+        sell_list = Sell.objects.filter(
+                payment_at__isnull = False,
+            ).filter(
+                ~Q(order_state = '결제취소'),
+            ).exclude(
+                # order_state = '결제취소',    
+            ).values(
+                'payment_at',
+                'channel',
+            ).annotate(
+                total_amount = Sum('total_amount'),
+                quantity = Sum('quantity'),
+            ).annotate(
+                ct = F('total_amount')/F('quantity')
+            )
+        print(str(sell_list.query))
+        paginator = Paginator(sell_list, 20)
+        page = request.GET.get('page')
+        sell = paginator.get_page(page)
+        return render(request, 'bflow_web/sell_list.html', {"sell": sell})
+    else:
+        return redirect('/list')
+        
+
+def sell_create(request):
+    if request.method == "POST":
+
         excel_file = request.FILES["excel_file"]
 
         wb = openpyxl.load_workbook(excel_file)
@@ -44,8 +78,7 @@ def sell_list(request):
         
         for row in iter_rows:
             row_data = list()
-            
-            
+
             sell = Sell.objects.update_or_create(
                 product_order_number = replacenone(row[0].value),
                 order_number = replacenone(row[1].value),
@@ -73,14 +106,59 @@ def sell_list(request):
                 crawler = replacenone(row[43].value),
             )
             
+            print(str(sell.query))
+            
+            for cell in row:
+                row_data.append(str(cell.value))
+            excel_data.append(row_data)
+        
+        return render(request, 'bflow_web/sell_list.html', {"excel_data": excel_data})
+    else:
+        return redirect('/list')
 
+def calaulate_create(request):
+    if request.method == "POST":
+
+        excel_file = request.FILES["excel_file"]
+
+        wb = openpyxl.load_workbook(excel_file)
+
+        ws = wb.active
+        print(ws)
+
+        excel_data = list()
+        iter_rows = iter(ws.rows)
+        next(iter_rows)
+
+        
+        for row in iter_rows:
+            row_data = list()
+
+            calculate = Calculate.objects.update_or_create(
+                product_order_number = replacenone(row[0].value),
+                order_number = replacenone(row[1].value),
+                channel_order_number = replacenone(row[2].value),
+                order_state = replacenone(row[3].value),
+                delivery_complete_at = replacedate(row[4].value),
+                provide_name = replacenone(row[5].value),
+                channel = replacenone(row[6].value),
+                quantity = replaceint(row[7].value),
+                order_amount = replaceint(row[8].value),
+                fees = float(row[9].value),
+                calculate = replaceMustint(row[10].value),
+                channel_calculate = replaceMustint(row[11].value),
+                complete_at = replacedate(row[12].value),
+                matching_at = replacedate(row[13].value),
+            )
+            print(str(calculate.query))
 
             for cell in row:
                 row_data.append(str(cell.value))
             excel_data.append(row_data)
         
-        print (excel_data[0][1])
         return render(request, 'bflow_web/sell_list.html', {"excel_data": excel_data})
+    else:
+        return redirect('/list')
 
 
 # Create your views here.

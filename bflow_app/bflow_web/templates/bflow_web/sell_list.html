@@ -5,7 +5,7 @@
         </title>
     </head>
     <body style="margin-top: 30px;margin-left: 30px;">
-        <form action="{% url "bflow_web:sell_list" %}" method="post" enctype="multipart/form-data">
+        <form action="{% url "bflow_web:sell_create" %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="file"
                    title="Upload excel file"
@@ -21,10 +21,35 @@
         <p></p>
         <hr>
 
+        {% for row in sell %}
+            <div>
+                <p>{{ row.payment_at }}</P>
+                <p>{{ row.channel }}</P>
+                <p>{{ row.quantity }}</P>
+                <p>{{ row.total_amount }}</P>
+                <p>{{ row.ct }}</P>
+            </div>
+            <br>
+        {% endfor %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if sell.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ sell.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ sell.number }} of {{ sell.paginator.num_pages }}.
+                </span>
+
+                {% if sell.has_next %}
+                    <a href="?page={{ sell.next_page_number }}">next</a>
+                    <a href="?page={{ sell.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
         {% for row in excel_data %}
-            {% for cell in row %}
-                {{ cell }}&nbsp;&nbsp;
-            {% endfor %}
+                {{ row }}
             <br>
         {% endfor %}
     </body>
