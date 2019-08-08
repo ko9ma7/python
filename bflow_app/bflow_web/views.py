@@ -105,10 +105,11 @@ def sell_create(request):
                     'delivery_complete' : replacedate(row[25].value),
                     'order_complete_at' : replacedate(row[26].value),
                     'auto_complete_at' : replacedate(row[27].value)
-                }
+                },
             )
+        msg = f'{excel_file} : 업데이트 완료'
 
-        return redirect('/list')
+        return render(request, 'bflow_web/sell_list.html', {"msg": msg})
     else:
         return redirect('/list')
 
@@ -156,6 +157,7 @@ def calaulate_create(request):
         return render(request, 'bflow_web/sell_list.html', {"excel_data": excel_data})
     else:
         return redirect('/list')
+
 
 
 # Create your views here.
