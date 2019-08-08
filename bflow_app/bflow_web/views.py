@@ -5,6 +5,7 @@ from .models import Sell, Calculate
 import openpyxl
 import datetime
 
+
 def replacedate(text):
     if text is None:
         return None
@@ -17,7 +18,7 @@ def replacenone(text):
     if text is None:
         return None
     else:
-        text = str(text)
+        text = str(text).replace(" ","")
         return text
 
 
@@ -28,6 +29,7 @@ def replaceint(text):
         text = int(text)
         return text
 
+
 def replaceMustint(text):
     if text is None:
         return 0
@@ -35,22 +37,23 @@ def replaceMustint(text):
         text = int(text)
         return text
 
+
 def sell_list(request):
     if request.method == "GET":
         sell_list = Sell.objects.filter(
-                payment_at__isnull = False,
+                payment_at__isnull=False,
             ).filter(
-                ~Q(order_state = '결제취소'),
+                ~Q(order_state='결제취소'),
             ).exclude(
                 # order_state = '결제취소',    
             ).values(
                 'payment_at',
                 'channel',
             ).annotate(
-                total_amount = Sum('total_amount'),
-                quantity = Sum('quantity'),
+                total_amount=Sum('total_amount'),
+                quantity=Sum('quantity'),
             ).annotate(
-                ct = F('total_amount')/F('quantity')
+                ct=F('total_amount')/F('quantity')
             )
         print(str(sell_list.query))
         paginator = Paginator(sell_list, 20)
@@ -71,20 +74,14 @@ def sell_create(request):
         ws = wb.active
         print(ws)
 
-        excel_data = list()
         iter_rows = iter(ws.rows)
         next(iter_rows)
 
-        
         for row in iter_rows:
-            row_data = list()
 
             sell = Sell.objects.update_or_create(
                 product_order_number = replacenone(row[0].value),
                 order_number = replacenone(row[1].value),
-                payment_at = replacedate(row[2].value),
-                order_state = replacenone(row[3].value),
-                claim = replacenone(row[4].value),
                 provide_name = replacenone(row[5].value),
                 product_name = replacenone(row[6].value),
                 product_option = replacenone(row[7].value),
@@ -95,26 +92,26 @@ def sell_create(request):
                 seller_discount = replaceint(row[21].value),
                 quantity = replaceint(row[22].value),
                 total_amount = replaceint(row[23].value),
-                delivery_at = replacedate(row[24].value),
-                delivery_complete = replacedate(row[25].value),
-                order_complete_at = replacedate(row[26].value),
-                auto_complete_at = replacedate(row[27].value),
                 category_number = replacenone(row[39].value),
                 buyer_email = replacenone(row[40].value),
                 buyer_gender = replacenone(row[41].value),
                 buyer_age = replacenone(row[42].value),
                 crawler = replacenone(row[43].value),
+                defaults = {
+                    'order_state': replacenone(row[3].value),
+                    'claim' : replacenone(row[4].value),
+                    'payment_at' : replacedate(row[2].value),
+                    'delivery_at' : replacedate(row[24].value),
+                    'delivery_complete' : replacedate(row[25].value),
+                    'order_complete_at' : replacedate(row[26].value),
+                    'auto_complete_at' : replacedate(row[27].value)
+                }
             )
-            
-            print(str(sell.query))
-            
-            for cell in row:
-                row_data.append(str(cell.value))
-            excel_data.append(row_data)
-        
-        return render(request, 'bflow_web/sell_list.html', {"excel_data": excel_data})
+
+        return redirect('/list')
     else:
         return redirect('/list')
+
 
 def calaulate_create(request):
     if request.method == "POST":
@@ -130,7 +127,6 @@ def calaulate_create(request):
         iter_rows = iter(ws.rows)
         next(iter_rows)
 
-        
         for row in iter_rows:
             row_data = list()
 
@@ -138,19 +134,20 @@ def calaulate_create(request):
                 product_order_number = replacenone(row[0].value),
                 order_number = replacenone(row[1].value),
                 channel_order_number = replacenone(row[2].value),
-                order_state = replacenone(row[3].value),
-                delivery_complete_at = replacedate(row[4].value),
                 provide_name = replacenone(row[5].value),
                 channel = replacenone(row[6].value),
                 quantity = replaceint(row[7].value),
                 order_amount = replaceint(row[8].value),
                 fees = float(row[9].value),
-                calculate = replaceMustint(row[10].value),
-                channel_calculate = replaceMustint(row[11].value),
-                complete_at = replacedate(row[12].value),
-                matching_at = replacedate(row[13].value),
+                defaults = {
+                    'order_state': replacenone(row[3].value),
+                    'delivery_complete_at': replacedate(row[4].value),
+                    'calculate': replaceMustint(row[10].value),
+                    'channel_calculate': replaceMustint(row[11].value),
+                    'complete_at': replacedate(row[12].value),
+                    'matching_at': replacedate(row[13].value),
+                },
             )
-            print(str(calculate.query))
 
             for cell in row:
                 row_data.append(str(cell.value))

@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class Calculate(models.Model):
     product_order_number = models.CharField(unique=True, max_length=50, blank=True, null=True)
     order_number = models.CharField(max_length=50, blank=True, null=True)
@@ -21,6 +22,8 @@ class Calculate(models.Model):
     month = models.IntegerField(blank=True, null=True)
     margin = models.IntegerField(blank=True, null=True)
 
+    def __str__(self):
+        return self.product_order_number
 
 
 class Sell(models.Model):
@@ -55,7 +58,8 @@ class Sell(models.Model):
     month = models.IntegerField(blank=True, null=True)
     week = models.IntegerField(blank=True, null=True)
 
-
+    def __str__(self):
+        return self.product_order_number
 
 
 class Sellstatistics(models.Model):
@@ -107,3 +111,6 @@ class Sellstatistics(models.Model):
     g9_ct = models.IntegerField(blank=True, null=True)  # Field name made lowercase.
     g9_margin = models.IntegerField(blank=True, null=True)
     g9_profit = models.FloatField(blank=True, null=True)
+
+    def __str__(self):
+        return self.date
