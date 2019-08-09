@@ -1,11 +1,6 @@
-<html>
-    <head>
-        <title>
-            Excel file upload and processing : Django Example : ThePythonDjango.Com
-        </title>
-    </head>
-
-    {% block sell_upload %}
+{% extends 'bflow_web/index.html' %}
+    {% block content %}
+     <body style="margin-top: 30px;margin-left: 30px;">
         <form action="{% url "bflow_web:sell_create" %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="file"
@@ -21,27 +16,6 @@
         {{ msg }}
         <p></p>
         <hr>
-
-    {% endblock sell_upload %}
-    <body style="margin-top: 30px;margin-left: 30px;">
-        
-
-        <form action="{% url "bflow_web:calaulate_create" %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="file"
-                   title="Upload excel file"
-                   name="excel_file"
-                   style="border: 1px solid black; padding: 5px;"
-                   required="required">
-            <p>
-            <input type="submit"
-                   value="Upload"
-                   style="border: 1px solid green; padding:5px; border-radius: 2px; cursor: pointer;">
-        </form>
-        {{ msg }}
-        <p></p>
-        <hr>
-
         {% for row in sell %}
             <div>
                 <p>{{ row.payment_at }}</P>
@@ -69,9 +43,8 @@
                 {% endif %}
             </span>
         </div>
-        {% for row in excel_data %}
-                {{ row }}
-            <br>
-        {% endfor %}
-    </body>
-</html>
+
+    {% endblock %}
+
+
+

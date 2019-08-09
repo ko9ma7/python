@@ -1,4 +1,24 @@
 
- {% block sell_upload %}
+<html>
+    <head>
+        <title>
+            Excel file upload and processing : Django Example : ThePythonDjango.Com
+        </title>
+    </head>
 
- {% endblock sell_upload %}
+
+<div>
+        <ul>
+            <li><a href="/sell/list">sell data</a></li>
+            <li><a href="/calculate/list">calculate data</a></li>
+            <li></li>
+            <li></li>
+        </ul>
+</div>
+
+<div>
+    {% block content %}
+    {% endblock %}
+</div>
+
+</html>

@@ -22,6 +22,10 @@ class Calculate(models.Model):
     month = models.IntegerField(blank=True, null=True)
     margin = models.IntegerField(blank=True, null=True)
 
+    def margin(self):
+        if self.calculate is not None and self.channel_calculate is not None:
+            return calculate - channel_calculate
+
     def __str__(self):
         return self.product_order_number
 
