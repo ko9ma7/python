@@ -205,7 +205,7 @@ def calculate_create(request):
             monthStr = datetime.datetime.strptime(complete_at, '%Y-%m-%d')
             week = monthStr.isocalendar()[1]
             month = monthStr.month
-            # margin = channel_calculate - calculate
+            margin = channel_calculate - calculate
 
 
             obj, calculate = Calculate.objects.update_or_create(
@@ -227,6 +227,7 @@ def calculate_create(request):
                     'matching_at': matching_at,
                     'week' : week,
                     'month' : month,
+                    'margin': margin,
                 },
             )
         
